@@ -207,6 +207,10 @@ void send_mkiss(int fd, const unsigned char *p, const int len)
 			out[offset++] = FESC;
 			out[offset++] = TFESC;
 		}
+		else
+		{
+			out[offset++] = p[i];
+		}
 	}
 
 	out[offset++] = FEND;
@@ -280,8 +284,14 @@ int main(int argc, char *argv[])
 		FD_SET(fdradio, &rfds);
 		FD_SET(fdmaster, &rfds);
 
+		if (verbose)
+			printf("waiting for packets of any source\n");
+
 		if (select(max(fdradio, fdmaster) + 1, &rfds, NULL, NULL, NULL) == -1)
 			error_exit(true, "select failed");
+
+		if (verbose)
+			printf("select says there's data\n");
 
 		if (FD_ISSET(fdradio, &rfds))
 		{
