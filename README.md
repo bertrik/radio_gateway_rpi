@@ -1,4 +1,4 @@
-Using an RFM69HW (as a modem) with a Raspberry Pi.
+Use an Arduino with an RFM69HW radio as a TNC for a Raspberry Pi.
 
 For this I used a simple Arduino in a TNC-like setup.
 
