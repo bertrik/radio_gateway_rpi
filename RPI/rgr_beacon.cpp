@@ -60,7 +60,7 @@ int main(int argc, char *argv[])
 	int msg_len = strlen(msg);
 
 	int buffer_len = msg_len + 2;
-	char *buffer = (char *)malloc(buffer_len);
+	unsigned char *buffer = (unsigned char *)malloc(buffer_len);
 	buffer[0] = buffer[1] = 32;
 	memcpy(&buffer[2], msg, msg_len);
 
@@ -104,7 +104,7 @@ int main(int argc, char *argv[])
 				if (verbose)
 					printf(" receiving message...\n");
 
-				char *p = NULL;
+				unsigned char *p = NULL;
 				int len = 0;
 
 				int rc = recv_msg(fd, &p, &len, true);

@@ -1,27 +1,18 @@
 #include <poll.h>
+#include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <unistd.h>
 
 #include "error.h"
+#include "rgr_lib.h"
 
-#define B_START 255
-#define B_END 254
-#define B_OK 253
-#define B_ERR_UNKNOWN 210
-#define B_ERR_TO 211  // time out
-#define B_ERR_OOR 212  // escape out of range
-#define B_ERR_START 213  // unexpected start byte
-#define B_ERR_END 214  // end without start
-#define B_ERR_OVERFLOW 215 // buffer overflow
-#define B_ESCAPE 200
-
-bool send_msg(int fd, const char *p, const int len)
+bool send_msg(int fd, const unsigned char *p, const int len)
 {
-	if (len > 64)
-		error_exit(false, "data packet too large (64 bytes max): %d", len);
+	if (len > MAX_PACKET_SIZE)
+		error_exit(false, "data packet too large (%d bytes max): %d", MAX_PACKET_SIZE, len);
 
-	uint8_t out[64 * 2 + 4] = { 0 };
+	unsigned char out[MAX_PACKET_SIZE * 2 + 4] = { 0 };
 	int out_offset = 0;
 
 	out[out_offset++] = B_START;  // start
@@ -37,6 +28,8 @@ bool send_msg(int fd, const char *p, const int len)
 	}
 
 	out[out_offset++] = B_END; // end
+
+	// printf("out len: %d\n", out_offset);
 
 	const char *psend = (const char *)out;
 	int len_send = out_offset;
@@ -74,11 +67,11 @@ int wait_for_byte(int fd, int to)
 	return result;
 }
 
-int recv_msg(int fd, char **p, int *len, bool no_b_start)
+int recv_msg(int fd, unsigned char **p, int *len, bool no_b_start)
 {
 	int rc = B_ERR_UNKNOWN;
 
-	*p = (char *)malloc(64);
+	*p = (unsigned char *)malloc(MAX_PACKET_SIZE);
 	*len = 0;
 
 	bool first = !no_b_start;
@@ -103,7 +96,7 @@ int recv_msg(int fd, char **p, int *len, bool no_b_start)
 				break;
 			}
 
-			if (*len == 64)
+			if (*len == MAX_PACKET_SIZE)
 			{
 				rc = B_ERR_OVERFLOW;
 				break;
@@ -143,7 +136,7 @@ int recv_msg(int fd, char **p, int *len, bool no_b_start)
 		}
 		else
 		{
-			if (*len == 64)
+			if (*len == MAX_PACKET_SIZE)
 			{
 				rc = B_ERR_OVERFLOW;
 				break;
@@ -154,4 +147,25 @@ int recv_msg(int fd, char **p, int *len, bool no_b_start)
 	}
 
 	return rc;
+}
+
+const char *err_to_msg(int nr)
+{
+	switch(nr)
+	{
+		case B_ERR_UNKNOWN:
+			return "unknown";
+		case B_ERR_TO:
+			return "time out";
+		case B_ERR_OOR:
+			return "escape out of range";
+		case B_ERR_START:
+			return "unexpected start byte";
+		case B_ERR_END:
+			return "unexpected end byte";
+		case B_ERR_OVERFLOW:
+			return "buffer overflow";
+	}
+
+	return "?";
 }

@@ -9,5 +9,8 @@
 #define B_ERR_OVERFLOW 215 // buffer overflow
 #define B_ESCAPE 200
 
-bool send_msg(int fd, const char *p, const int len);
-int recv_msg(int fd, char **p, int *len, bool no_b_start);
+#define MAX_PACKET_SIZE 66	// according to the datasheet
+
+bool send_msg(int fd, const unsigned char *p, const int len);
+int recv_msg(int fd, unsigned char **p, int *len, bool no_b_start);
+const char *err_to_msg(int nr);

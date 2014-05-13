@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
 	for(;;)
 	{
 
-		char *p = NULL;
+		unsigned char *p = NULL;
 		int len = 0;
 
 		int rc = recv_msg(fd, &p, &len, false);

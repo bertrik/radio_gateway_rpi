@@ -35,6 +35,11 @@ set "verbose = false" in the top of main().
 
 This will only listen and show what is received.
 
+	rgr_kiss /dev/ttyAMA0 FH4GOU-1
+
+This will start an AX25 network device with call sign "FH4GOU-1".
+All traffic in and out will be routed over the radio.
+
 If any program gives an error code, then this is what they mean:
 
 210	unspecified
