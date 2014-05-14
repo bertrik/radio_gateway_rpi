@@ -187,13 +187,14 @@ bool recv_mkiss(int fd, unsigned char **p, int *len, bool verbose)
 	return ok;
 }
 
-void send_mkiss(int fd, const unsigned char *p, const int len)
+void send_mkiss(int fd, int channel, const unsigned char *p, const int len)
 {
 	int max_len = len * 2 + 1;
 	unsigned char *out = (unsigned char *)malloc(max_len);
 	int offset = 0;
 
 	out[offset++] = FEND;
+	out[offset++] = (channel << 4) | 0x00; // [channel 0][data]
 
 	for(int i=0; i<len; i++)
 	{
