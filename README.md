@@ -1,4 +1,4 @@
-Use an Arduino with an RFM69HW radio as a TNC for a Raspberry Pi.
+Use an Arduino with an RFM69HW radio as a TNC for a Linux system.
 
 For this I used a simple Arduino in a TNC-like setup.
 
@@ -15,14 +15,17 @@ Arduino                 RFM
 - digital I/O pin 12    MISO
 - digital I/O pin 13    SCK
 
-Then connect the Arduino to the RPI:
+Then connect the Arduino to the Linux system.
+Here's the pin layout for a Raspberry Pi but you can, of course,
+use a serial-to-usb adapter to connect the Arduino to your linux
+system as well.:
 Arduino                 RPI
 - 3,3V                  3,3V [1]
 - GND                   GND  [6]
 - TX                    RX   [10]
 - RX                    TX   [8]
 
-The code from RPI/ can be run on the raspberry pi.
+The code from Linux/ can be run on the Linux system.
 Run "make" to build things.
 
 	rgr_beacon /dev/ttyAMA0 "Hello, this is dog." 5
@@ -50,9 +53,9 @@ If any program gives an error code, then this is what they mean:
 215	buffer overflow
 
 They're all related to communication between the Arduino and
-the RPI.
+the Linux system.
 If you get them a lot, then check the cabling between the
-arduino and the rpi.
+arduino and the Linux box.
 
 
 Any feedback can go to: mail@vanheusden.com
