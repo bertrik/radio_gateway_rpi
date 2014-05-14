@@ -26,6 +26,8 @@ void setup() {
     delay(100);
   }
   
+  radio.setMode(RFM69_MODE_RX);
+
   pinMode(13, OUTPUT);
   led = true;
   toggleLed();
@@ -63,8 +65,12 @@ void loop() {
     out[out_offset++] = B_END; // end
 
     Serial.write(out, out_offset);
+
+    toggleLed();
   }
   else if (Serial.available()) {
+    toggleLed();
+
     uint8_t out[64];
     int out_offset = 0;
     boolean escape = false, ok = false, first = true;
@@ -73,8 +79,22 @@ void loop() {
     unsigned long start = millis();
     
     for(;;) {
+      unsigned long diff = 0;
+      
+      while(!Serial.available() && diff < 1000) {
+        diff = millis() - start;
+      }
+      
+      if (diff >= 1000) {
+        fail_code = B_ERR_TO;
+        break;
+      }
+      
       int c = Serial.read();
       
+      if (c == -1)
+        continue;
+        
       if (escape) {
         int temp = c + B_ESCAPE;
         
@@ -110,7 +130,7 @@ void loop() {
       }
       else if (c == B_ESCAPE)  // escape
         escape = true;
-      else if (c != -1) {
+      else {
         if (out_offset == 64) {
           fail_code = B_ERR_OVERFLOW;
           break;
@@ -119,18 +139,6 @@ void loop() {
         out[out_offset++] = c;
       }
 
-      // at this point there's more to come: B_END
-      // is handled before this point
-      unsigned long diff = 0;
-      
-      while(!Serial.available() && diff < 1000) {
-        diff = millis() - start;
-      }
-      
-      if (diff >= 1000) {
-        fail_code = B_ERR_TO;
-        break;
-      }
     }
     
     if (ok) {
@@ -148,6 +156,8 @@ void loop() {
       unsigned char x_fail = (unsigned char)fail_code;
       Serial.write(&x_fail, 1);
     }
+
+    toggleLed();
   }
 }
 
