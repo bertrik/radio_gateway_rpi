@@ -89,7 +89,7 @@ void setser(int fd)
 void dump_hex(const unsigned char *p, int len)
 {
 	for(int i=0; i<len; i++)
-		printf("%02x[%c]%c ", p[i], p[i] > 32 && p[i] < 127 ? p[i] : '.', p[i] >= B_ESCAPE ? '+' : ' ');
+		printf("%d[%c]%c ", p[i], p[i] > 32 && p[i] < 127 ? p[i] : '.', p[i] >= B_ESCAPE ? '+' : ' ');
 
 	printf("\n");
 }
@@ -318,7 +318,7 @@ int main(int argc, char *argv[])
 						dump_hex(p, len);
 					}
 
-					send_mkiss(fdmaster, p, len);
+					send_mkiss(fdmaster, 0, p, len);
 				}
 				else if (verbose)
 				{

@@ -26,7 +26,7 @@ void setser(int fd)
 	newtio.c_cflag = B115200 | CS8 | CREAD | CLOCAL | CSTOPB;
 	newtio.c_lflag = 0;
 	newtio.c_cc[VMIN] = 1;
-	newtio.c_cc[VTIME] = 0;
+	newtio.c_cc[VTIME] = 100;
 
 	tcflush(fd, TCIFLUSH);
 

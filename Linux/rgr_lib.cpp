@@ -86,6 +86,8 @@ int recv_msg(int fd, unsigned char **p, int *len, bool no_b_start)
 			break;
 		}
 
+		// printf("%d %d\n", escape, b);
+
 		if (escape)
 		{
 			int new_val = b + B_ESCAPE;
@@ -105,9 +107,6 @@ int recv_msg(int fd, unsigned char **p, int *len, bool no_b_start)
 			(*p)[(*len)++] = new_val;
 
 			escape = false;
-		}
-		else if (b == B_OK || (b >= 210 && b < 225))
-		{
 		}
 		else if (b == B_START)
 		{
@@ -130,7 +129,7 @@ int recv_msg(int fd, unsigned char **p, int *len, bool no_b_start)
 			rc = B_OK;
 			break;
 		}
-		else if (b >= B_ESCAPE)
+		else if (b == B_ESCAPE)
 		{
 			escape = true;
 		}
