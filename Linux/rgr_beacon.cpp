@@ -4,7 +4,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <termios.h>
 #include <time.h>
 #include <unistd.h>
 #include <sys/ioctl.h>
@@ -13,26 +12,6 @@
 
 #include "error.h"
 #include "rgr_lib.h"
-
-void setser(int fd) 
-{
-	struct termios newtio;
-
-	if (tcgetattr(fd, &newtio) == -1)
-		error_exit(true, "tcgetattr failed");
-
-	newtio.c_iflag = IGNBRK; // | ISTRIP;
-	newtio.c_oflag = 0;
-	newtio.c_cflag = B115200 | CS8 | CREAD | CLOCAL | CSTOPB;
-	newtio.c_lflag = 0;
-	newtio.c_cc[VMIN] = 1;
-	newtio.c_cc[VTIME] = 0;
-
-	tcflush(fd, TCIFLUSH);
-
-	if (tcsetattr(fd, TCSANOW, &newtio) == -1)
-		error_exit(true, "tcsetattr failed");
-}
 
 int main(int argc, char *argv[])
 {
@@ -51,11 +30,7 @@ int main(int argc, char *argv[])
 			interval = atoi(argv[3]);
 	}
 
-	int fd = open(dev, O_RDWR);
-	if (fd == -1)
-		error_exit(true, "cannot open %s", dev);
-
-	setser(fd);
+	int fd = open_ser_dev(dev);
 
 	int msg_len = strlen(msg);
 
@@ -76,7 +51,7 @@ int main(int argc, char *argv[])
 			printf("%s send message\n", ts);
 		}
 
-		if (!send_msg(fd, buffer, buffer_len))
+		if (!send_msg(fd, 255, buffer, buffer_len))
 			error_exit(false, "transmit failed");
 
 		for(;;)
@@ -106,11 +81,14 @@ int main(int argc, char *argv[])
 
 				unsigned char *p = NULL;
 				int len = 0;
+				uint8_t addr = 255;
 
-				int rc = recv_msg(fd, &p, &len, true);
+				int rc = recv_msg(fd, &addr, &p, &len, true);
 
 				if (verbose)
 				{
+					printf("  source addr %d\n", addr);
+
 					if (rc == B_OK)
 					{
 						char buffer[65] = { 0 };
@@ -132,6 +110,13 @@ int main(int argc, char *argv[])
 					printf(" OK\n");
 
 				break;
+			}
+			else if (result == B_RSSI)
+			{
+				unsigned char rssi = 123;
+
+				if (read(fd, &rssi, 1) == -1)
+					error_exit(true, "problem retrieving rssi from radio");
 			}
 			else
 			{

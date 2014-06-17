@@ -66,26 +66,6 @@ void startiface(const char *dev)
 	close(fd);
 }
 
-void setser(int fd) 
-{
-	struct termios newtio;
-
-	if (tcgetattr(fd, &newtio) == -1)
-		error_exit(true, "tcgetattr failed");
-
-	newtio.c_iflag = IGNBRK; // | ISTRIP;
-	newtio.c_oflag = 0;
-	newtio.c_cflag = B115200 | CS8 | CREAD | CLOCAL | CSTOPB;
-	newtio.c_lflag = 0;
-	newtio.c_cc[VMIN] = 1;
-	newtio.c_cc[VTIME] = 0;
-
-	tcflush(fd, TCIFLUSH);
-
-	if (tcsetattr(fd, TCSANOW, &newtio) == -1)
-		error_exit(true, "tcsetattr failed");
-}
-
 void dump_hex(const unsigned char *p, int len)
 {
 	for(int i=0; i<len; i++)
@@ -247,11 +227,7 @@ int main(int argc, char *argv[])
 		error_exit(false, "usage: %s dev call\n", argv[0]);
 	}
 
-	int fdradio = open(dev, O_RDWR);
-	if (fdradio == -1)
-		error_exit(true, "cannot open %s", dev);
-
-	setser(fdradio);
+	int fdradio = open_ser_dev(dev);
 
 	int fdmaster = -1, fdslave = -1;
 	if (openpty(&fdmaster, &fdslave, NULL, NULL, NULL) == -1)
@@ -308,13 +284,14 @@ int main(int argc, char *argv[])
 
 				unsigned char *p = NULL;
 				int len = 0;
-				int rc = recv_msg(fdradio, &p, &len, true);
+				uint8_t addr = 255;
+				int rc = recv_msg(fdradio, &addr, &p, &len, true);
 
 				if (rc == B_OK)
 				{
 					if (verbose)
 					{
-						printf("data (%d): ", len);
+						printf("[%d] data (%d): ", addr, len);
 						dump_hex(p, len);
 					}
 
@@ -326,6 +303,13 @@ int main(int argc, char *argv[])
 				}
 
 				free(p);
+			}
+			else if (buffer == B_RSSI)
+			{
+				unsigned char rssi = 123;
+
+				if (read(fdradio, &rssi, 1) == -1)
+					error_exit(true, "problem retrieving rssi from radio");
 			}
 			else
 			{
@@ -356,7 +340,7 @@ int main(int argc, char *argv[])
 					dump_hex(p, len);
 				}
 
-				if (!send_msg(fdradio, p, len))
+				if (!send_msg(fdradio, 255, p, len))
 					error_exit(false, "transmit failed");
 			}
 

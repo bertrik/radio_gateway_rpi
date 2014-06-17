@@ -24,7 +24,7 @@ install: rgr_beacon rgr_listen rgr_kiss
 	cp rgr_beacon rgr_listen rgr_kiss $(PREFIX)/bin
 
 clean:
-	rm -f $(OBJS) rgr_beacon rgr_listen rgr_kiss
+	rm -f $(OBJSb) $(OBJSl) $(OBJSk) rgr_beacon rgr_listen rgr_kiss
 
 package: clean
 	mkdir radio_gateway_rpi-$(VERSION)
