@@ -14,7 +14,7 @@
 #define B_ERR_OVERFLOW 215 // buffer overflow
 #define B_ESCAPE 200
 
-uint8_t rfm_power = 20; // dBmW
+uint8_t rfm_power = 0; // dBmW
 boolean led = false;
 
 RFM69 radio(9.6);
