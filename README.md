@@ -26,6 +26,9 @@ Arduino                 RPI
 - RX                    TX   [8]
 
 The code from Linux/ can be run on the Linux system.
+Requirements:
+* libax25-dev
+
 Run "make" to build things.
 
 	rgr_beacon /dev/ttyAMA0 "Hello, this is dog." 5
