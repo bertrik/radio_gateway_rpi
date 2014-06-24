@@ -4,6 +4,9 @@ For this I used a simple Arduino in a TNC-like setup.
 
 Arduino:
 The code from Arduino/radio_bridge.ino must be put in an Arduino.
+Requirements:
+* RFM69 library from https://github.com/philcrump/UKHASnet_RFM69_Synchronous
+
 I tested it with a Arduini Mini Pro, 3.3V, 8MHz, AtMega328.
 
 Arduino                 RFM
